@@ -18,10 +18,10 @@ class Trainer:
         self.V = np.random.randn(self.vocabSize, self.hiddenLayerSize) * 0.01
         self.U = np.random.randn(self.vocabSize, self.hiddenLayerSize) * 0.01
         # Weights matrices
-        with open("integer_filtered_100M.pkl", "rb") as f:  # Integer representations of each word w/o the rare words.
+        with open("Data/integer_filtered_100M.pkl", "rb") as f:  # Integer representations of each word w/o the rare words.
             self.tokens_array_ints = load(f)
         self.num_tokens = self.tokens_array_ints.size
-        with open("cum_distribution.plk", "rb") as f:
+        with open("Data/cum_distribution.plk", "rb") as f:
             self.cum_dist = load(f)
             
     def compute_score(self, x: np.ndarray) -> np.ndarray:
@@ -98,7 +98,7 @@ class Trainer:
                     self.evaluate(window_size)
     
     def save(self):
-        with open("UVsave.pkl", "wb") as f:
+        with open("Data/UVsave.pkl", "wb") as f:
             dump((self.U, self.V), f)
         print("Saved matrices U and V")
 

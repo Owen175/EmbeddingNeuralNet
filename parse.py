@@ -7,7 +7,7 @@ from collections import Counter
 
 # token_freq = Counter(tokens)
 
-with open("idx_to_word.pkl", "rb") as f:
+with open("Data/idx_to_word.pkl", "rb") as f:
     tokens = pickle.load(f)
 print(tokens)
 a = []
@@ -15,5 +15,5 @@ a = []
 for key, val in tokens.items():
     a.append(val)
 
-with open("idx_to_word_array.pkl", "wb") as f:
+with open("Data/idx_to_word_array.pkl", "wb") as f:
     pickle.dump(np.array(a), f)

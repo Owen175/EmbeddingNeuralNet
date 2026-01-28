@@ -5,9 +5,9 @@ class Tester:
     def __init__(self, filename):
         with open(filename, "rb") as f:
             self.U, self.V = pickle.load(f)
-        with open("word_to_info.pkl", "rb") as f:
+        with open("Data/word_to_info.pkl", "rb") as f:
             self.wti_dict = pickle.load(f)
-        with open("idx_to_word_array.pkl", "rb") as f:
+        with open("Data/idx_to_word_array.pkl", "rb") as f:
             self.itw_arr = pickle.load(f)
         
         self.vocabSize, self.hiddenLayerSize = self.U.shape

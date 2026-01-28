@@ -23,7 +23,13 @@ class Trainer:
         self.num_tokens = self.tokens_array_ints.size
         with open("Data/cum_distribution.plk", "rb") as f:
             self.cum_dist = load(f)
-            
+
+    def load(self, filename):
+        with open(filename, "rb") as f:
+            self.U, self.V = load(f)
+        self.vocabSize, self.hiddenLayerSize = self.U.shape
+
+
     def compute_score(self, x: np.ndarray) -> np.ndarray:
         h = self.V.T.dot(x)
         output = self.U.T.dot(h)

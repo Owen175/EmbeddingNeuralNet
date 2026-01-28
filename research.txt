@@ -1,0 +1,108 @@
+1- illustrated-word2vec
+
+uses the big 5 personality traits as an example vector with 5 slots to inform about a person
+
+cosine similarity to get the similarity score
+- dot product formula. 
+
+the general idea is to take input text and make a sliding scale with the first two words (for example) being used as inputs to predict the third. 
+However, giving words after the word to be predicted as well increases accuracy.
+e.g. Jay was hit by a ... vs Jay was hit by a ... bus in.
+
+This is the idea behind Continuous Bag of Words architecture. 
+
+An alternative is skipgram where you give the word being predicted in CBOW, and it tries to predict the surrounding context words 
+
+Negative Sampling - 
+splitting into generating embeddings and seperately using embeddings to train a language model to do next-word prediction
+
+You need negative samples too - words which are not neighbours. This could return 0 where neighbours would return 1
+
+You can generate them randomly from the vocabulary.
+
+Skipgram with neg. sampling
+
+a possible vocab_size is 10,000
+a possible embedding_size is 300
+
+You would create 2 matrices - embedding and context
+Each has an embedding for each word in the vocab. 
+They are initialised with random values. 
+In each training step you take a positive example and associated negative examples. 
+You look up their embeddings - for the input word you look in the embedding matrix and the context you look in the context matrix
+
+You take the dot product of the input embedding with each of the conetxt embeddings. 
+
+Now these scores need to be made into probabilities - between 0 and 1 - can use sigmoid
+
+Now just take the sigmoid scores from the target labels - 1 if really the target and 0 otherwise if randomly generated. This is error. 
+The error can be used to adjust the embeddings of each. 
+
+Window size and number of negative samples are both very important
+Small window size (2-15) leads to embeddings where similar words are interchangable - antonyms can be interchangable too though. 
+large (15-50+) lead to embeddings where similarity is indicative of relatedness of words. 
+
+The original paper says that 5-20 is a good number of negative samples, with 2-5 being enough with a large dataset
+
+- Efficient Estimation of Word Representations in Vector Space
+Some NLP systems have no notion of similarity between words. They can be trained on virtually all possible training data but are limited. 
+they decreased the learning rate linearly as it trained
+
+
+- https://web.stanford.edu/class/cs224n/readings/cs224n-2019-notes01-wordvecs1.pdf
+You can use SVD based methods. 
+To find embeddings, you can loop over a dataset and accumulate word co-occurance counts in a matrix X, then do SVD on X to get USV^T decomposition.
+You can use the rows of U as the embeddings for the words in the dictionary
+
+Choices for X:
+- each time word i appears in document j add one to entry Xij. Large matrix and scales with no. documents D:
+- window-based co-occurance matrix. Within a window, count how many times another word appears. 
+  doing svd, you can cut off the less significant singular values, to get a smaller submatrix with k dimensional representations of each word in the vocabulary
+
+Problems: 
+- SVD does not scale well
+- sparse matrix
+- dimensions may change
+- very high dim matrix generally
+
+Instead, you can use iteration based methods. 
+Design a model with parameters being the word vectors. Train it on an objective. Each iteration, run the model, evaluate the errors and follow some update rule. 
+
+2 training methods - negative sampling and heirarchical sofmax - defining an objective using a tree to compute probabilities
+
+Language models can assign probabilities to a sequence of tokens - e.g. "The cat jumped over the puddle" should have a high probability, since it is a valid sentence
+"stock boil fish is toy" should be low. 
+You can assume that these words are independent and simply multiply their probabilities.
+This is not good. 
+You can have a bigram model instead - P(w1, w2, ..., wn) = product from i=2 to n of (P(wi|wi-1))
+This learns pairwise probabilities and regurgicates them. This is a bit better
+
+CBOW is better still. 
+Creating 2 matrices - V: R^(n*|Vocab|), U: R^(|vocab|*n)
+the ith column of V is the n dimensional vector of word wi, when it is an input.
+Similarly, the jth row of U is the n dim rep of the word wj when it is the output for the model. 
+
+a one-hot vector is a vector of length |V| with 1 at the index of that word and 0 elsewhere
+
+If you have V, U, these would be the steps to get the probabilities
+
+- generate the one-hot vectors for each context word - xi
+- get embedded word vectors for the context - vi = Vxi
+- average the vectors to get v
+- get a score vector z=Uv
+- turn the scores into probabilities - y=softmax(z)
+- this should match a hot vector of the actual word. 
+
+softmax - e^yi/sum from k=1 to |V| of e^yk for each ith component. 
+
+This is all well and good but we do not have V, U
+
+cross entropy is a measure of distance between two distributions
+in the discrete case:
+H(y1, y2) = -(sum from j=1 to |V| of y1jlog(y2j))
+where y1, y2 are vectors
+
+We know y is a 1 hot vector. Therefore 
+H(y1, y2) = -y1i log(y2i)
+
+we want to minimise J=... (in paper p9)
